@@ -1,0 +1,11 @@
+# mac
+.DS_Store
+
+# environmental variables
+twilio.env
+
+# database
+*.db
+
+# virtual env
+robohacks/
