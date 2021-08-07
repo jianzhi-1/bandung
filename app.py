@@ -1,4 +1,4 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, render_template
 import sqlite3
 import datetime
 import os
@@ -117,7 +117,7 @@ def index():
 	if (request.method == 'GET'):
 
 		app.logger.info("index - GET method")
-		return "Hello World Updated!"
+		return render_template('index.html')
 	
 	elif (request.method == 'POST'):
 		app.logger.info("index - POST method")
@@ -243,7 +243,7 @@ def index():
 			_addMessage(sender, dirrecipient[0][0], msglis)
 
 			### send to the person
-			if (firstWord[1:] in ["me", "dad", "mum", "son", "boy", "bro", "brother"]):
+			if (firstWord[1:] in ["me", "dad", "annoyingboi", "pizza", "mum", "son", "boy", "bro", "brother"]):
 				account_sid = os.environ['TWILIO_ACCOUNT_SID']
 				auth_token = os.environ['TWILIO_AUTH_TOKEN']
 				client = Client(account_sid, auth_token)

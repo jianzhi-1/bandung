@@ -1,6 +1,6 @@
 # Bandung
 
-![Bandung Logo](./bandung.png)
+![Bandung Logo](./static/bandung.png)
 
 Too many contacts in your Whatsapp? Tired of seeing one-time contacts keep popping up? Bandung helps to bundle up these contacts into one Whatsapp chat. What's more? You can give each of these contacts a codename to easily refer to them when whatsapping them!
 
