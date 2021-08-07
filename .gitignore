@@ -1,6 +1,9 @@
 # mac
 .DS_Store
 
+# vscode
+.vscode/
+
 # environmental variables
 twilio.env
 

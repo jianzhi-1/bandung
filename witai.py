@@ -46,9 +46,11 @@ class WitBot:
             "Authorization": "Bearer {}".format(self.access_token),
             "Content-Type": "application/json"
         }
+        
         data = {
             "name": intent_name
         }
+
         dt = datetime.datetime.now().strftime("%Y%m%d")
         self.client.logger.info("WitBot - creating new intent {}".format(intent_name))
         x = requests.post('https://api.wit.ai/intents?v={}'.format(dt), json=data, headers=headers)
@@ -58,18 +60,18 @@ class WitBot:
     
     def train_intent(self, intent_name, text):
 
-        ### maybe do a check to see if intent name is within the list of intents?
-
         headers = {
             "Authorization": "Bearer {}".format(self.access_token),
             "Content-Type": "application/json"
         }
+
         data = [{
             "text": text,
             "intent": intent_name,
             "entities": [],
             "traits": []
         }]
+
         dt = datetime.datetime.now().strftime("%Y%m%d")
         self.client.logger.info("WitBot - training intent {} with text {}".format(intent_name, text))
         x = requests.post('https://api.wit.ai/utterances?v={}'.format(dt), json=data, headers=headers)

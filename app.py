@@ -250,23 +250,22 @@ def index():
 
 			### Send message to person
 
-			if (firstWord[1:] in ["me", "dad", "annoyingboi", "pizza", "mum", "son", "boy", "bro", "brother"]):
-				account_sid = os.environ['TWILIO_ACCOUNT_SID']
-				auth_token = os.environ['TWILIO_AUTH_TOKEN']
-				client = Client(account_sid, auth_token)
-				app.logger.info("sender is {}".format(sender))
-				app.logger.info("recipient is {}".format(dirrecipient[0][0]))
-				app.logger.info("message is {}".format(msglis))
+			account_sid = os.environ['TWILIO_ACCOUNT_SID']
+			auth_token = os.environ['TWILIO_AUTH_TOKEN']
+			client = Client(account_sid, auth_token)
+			app.logger.info("sender is {}".format(sender))
+			app.logger.info("recipient is {}".format(dirrecipient[0][0]))
+			app.logger.info("message is {}".format(msglis))
 
-				finmsg = "Message from {}\n\n".format(cleanupContact(sender)) + msglis
+			finmsg = "Message from {}\n\n".format(cleanupContact(sender)) + msglis
 
-				message = client.messages.create(
-					body=finmsg,
-					from_="whatsapp:+14155238886",
-					to=dirrecipient[0][0]
-				)
-				app.logger.info("message sent - message.sid = {}".format(message.sid))
-			
+			message = client.messages.create(
+				body=finmsg,
+				from_=os.environ['TWILIO_PHONE_NO'],
+				to=dirrecipient[0][0]
+			)
+			app.logger.info("message sent - message.sid = {}".format(message.sid))
+		
 
 			### Train Wit.AI utterance
 			wb = WitBot()
@@ -306,7 +305,7 @@ def index():
 
 				message = client.messages.create(
 					body=finmsg,
-					from_="whatsapp:+14155238886",
+					from_=os.environ['TWILIO_PHONE_NO'],
 					to=dirrecipient[0][0]
 				)
 
