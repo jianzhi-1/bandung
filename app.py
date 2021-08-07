@@ -4,6 +4,7 @@ import datetime
 import os
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
+from witai import WitBot
 app = Flask(__name__)
 
 ### SQLITE3 DATABASES
@@ -13,6 +14,23 @@ DATABASE_MSG = 'message.db'
 
 HELPMSG = """
 *Bandung Help Prompt*
+
+*Command Words*
+1. _$help_
+    returns the 'help' prompt 
+
+2. _$freeze_
+    returns a list of all codewords and contact no
+
+3. _$add <codeword> <contact>_
+    adds a codeword with its contact no
+
+4. _$get <codeword>_
+    returns the matching contact no
+
+*Sending Messages*
+1. _@<person> <message>_ 
+    sends <message> to <persons>
 """
 
 def nicely_format(lis):
@@ -26,11 +44,13 @@ def nicely_format(lis):
 		msg = msg + i[3] + "\n"
 	return msg
 
+
 def get_db():
 	db = getattr(g, '_database', None)
 	if db is None:
 		db = g._database = sqlite3.connect(DATABASE)
 	return db
+
 
 def get_db_msg():
 	db = getattr(g, '_database_msg', None)
@@ -47,6 +67,7 @@ def close_connection(exception):
 	if db_msg is not None:
 		db_msg.close()
 
+
 def query_db(query, args=(), one=False, cmt=False):
 	conn = get_db()
 	cur = conn.execute(query, args)
@@ -55,6 +76,7 @@ def query_db(query, args=(), one=False, cmt=False):
 	rv = cur.fetchall()
 	cur.close()
 	return (rv[0] if rv else None) if one else rv
+
 
 def query_db_msg(query, args=(), one=False, cmt=False):
 	conn = get_db_msg()
@@ -65,14 +87,17 @@ def query_db_msg(query, args=(), one=False, cmt=False):
 	cur.close()
 	return (rv[0] if rv else None) if one else rv
 
+
 def _getContact(userFrom, codeName):
 	x = query_db('SELECT userTo FROM contact WHERE userFrom="{}" AND codeName="{}"'.format(userFrom, codeName))
 	return x
+
 
 def _addContact(userFrom, userTo, codeName):
 	x = query_db('INSERT INTO contact (userFrom, userTo, codeName) VALUES("{}", "{}", "{}")'.format(userFrom, userTo, codeName), cmt=True)
 	print(x, flush=True)
 	return "Successfully added contact"
+
 
 def _addMessage(userFrom, userTo, message):
 	datemsg = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -80,10 +105,12 @@ def _addMessage(userFrom, userTo, message):
 	print(x, flush=True)
 	return "Successfully added message"
 
+
 def _retrieveLast(userFrom, userTo):
 	x = query_db_msg('SELECT * FROM tb WHERE userFrom IN ("{}", "{}") AND userTo IN ("{}", "{}") ORDER BY date DESC LIMIT 3'.format(userFrom, userTo, userFrom, userTo))
 	print(x, flush=True)
 	return x
+
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -163,8 +190,14 @@ def index():
 					receiver = "whatsapp:" + receiver
 				app.logger.info("index - final receiver = {}".format(str(receiver)))
 				_addContact(sender, receiver, msg[1])
+
+				### TODO create WITAI intent
+				wb = WitBot()
+				wb.create_new_intent(msg[1])
+
 				resp.message("Successfully added contact.")
 				return str(resp)
+
 			elif (lmsg == "last"):
 
 				app.logger.info("index - $last")
@@ -198,8 +231,6 @@ def index():
 			msglis = " ".join(msg[1:])
 			dirrecipient = _getContact(sender, firstWord[1:])
 			app.logger.info("index - dirrecipient = {}".format(str(dirrecipient)))
-			#app.logger.info("{}".format(str(dirrecipient)))
-			#app.logger.info("{}".format(str(dirrecipient[0])))
 			
 			if (len(dirrecipient) == 0):
 				app.logger.warning("index - unable to find such a recipient")
@@ -229,21 +260,62 @@ def index():
 				)
 				app.logger.info("message sent - message.sid = {}".format(message.sid))
 			
+
+			### TODO Train WITAI utterance
+			wb = WitBot()
+			wb.train_intent(firstWord[1:], msglis)
+
 			return str(resp)
 		else:
 			
 			incoming_msg
 
-			resp.message("Unable to understand message. Type $help for guidance.")
-			return str(resp)
-		
-		resp.message("you typed: " + str(incoming_msg))
-		#msg = resp.message()
-		#msg.body("you typed: " + str(incoming_msg))
-		#print(request.__dict__.items(), flush=True)
-		#print(str(request["Body"]), flush=True)
-		#print(str(request), flush=True)
-		return str(resp)
+			### TODO Get prediction from WitBot
+			wb = WitBot()
+			(cann, txt) = wb.query(incoming_msg)
+
+			if (cann):
+				resp.message("No recipient indicated. Automatically sending message to {} ({} sure).".format(txt[0], str(int(100.0*txt[1]))+"%"))
+				#automate the sending of message
+				account_sid = os.environ['TWILIO_ACCOUNT_SID']
+				auth_token = os.environ['TWILIO_AUTH_TOKEN']
+				client = Client(account_sid, auth_token)
+				app.logger.info("sender is {}".format(sender))
+
+				dirrecipient = _getContact(sender, txt[0])
+				app.logger.info("index - dirrecipient = {}".format(str(dirrecipient)))
+				
+				if (len(dirrecipient) == 0):
+					app.logger.warning("index - unable to find such a recipient")
+					resp.message("No such recipient registered. Type $help for guidance.")
+					return str(resp)
+
+				resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], incoming_msg))
+				
+				### add message to db_msg
+				_addMessage(sender, dirrecipient[0][0], incoming_msg)
+
+				app.logger.info("recipient is {}".format(dirrecipient[0][0]))
+				app.logger.info("message is {}".format(incoming_msg))
+
+				finmsg = "Message from {}\n\n".format(sender) + incoming_msg
+
+				message = client.messages.create(
+					body=finmsg,
+					from_="whatsapp:+14155238886",
+					to=dirrecipient[0][0]
+				)
+
+				app.logger.info("message sent - message.sid = {}".format(message.sid))
+			
+				# do not train message over here, since it is unsupervised
+				return str(resp)
+			else:
+
+				resp.message(txt)
+				return str(resp)
+
+
 
 @app.route("/addContact", methods=['POST'])
 def addContact():
@@ -255,6 +327,7 @@ def addContact():
 	print(x, flush=True)
 	return "Successfully added contact"
 
+
 @app.route("/getContact", methods=['POST'])
 def getContact():
 	if (request.form.get("userFrom") is None or request.form.get("codeName") is None):
@@ -264,6 +337,7 @@ def getContact():
 	x = query_db('SELECT userTo FROM contact WHERE userFrom="{}" AND codeName="{}"'.format(request.form.get("userFrom"), request.form.get("codeName")))
 	app.logger.info(x)
 	return str(x)
+
 
 @app.route("/getLast", methods=['POST'])
 def getLast():
@@ -277,6 +351,7 @@ def getLast():
 	app.logger.info(x)
 	return str(x)
 
+
 @app.route("/freeze/<name>", methods=['GET'])
 def freeze(name):
 	### obtain a mapping of numbers to codename for user name
@@ -287,11 +362,12 @@ def freeze(name):
 			msg = msg + "\n"
 		msg = msg + i[1] + " -> " + i[2]
 	return str(msg)
-    #return "Hello {}!".format(name)
+
 
 @app.route("/getAll", methods=['GET'])
 def getAll():
 	return str(query_db('SELECT * FROM contact'))
+
 
 @app.route("/getAllMessage", methods=['GET'])
 def getAllMessage():
