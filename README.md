@@ -25,7 +25,7 @@ Example: ```@pizza can i have a large hawaiian pizza with 2 garlic bread?```
 
 ### Setting Up
 
-1. Installation and setting up environmental variables
+1. Installation and setting up environmental variables (store in twilio.env)
 
 ```dosini
 export TWILIO_ACCOUNT_SID='<TWILIO_ACCOUNT_SID>'
