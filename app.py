@@ -40,7 +40,7 @@ def nicely_format(lis):
 		if (msg != ""):
 			msg = msg + "\n\n"
 		msg = msg + "*[" + i[0] + "]*" + "\n"
-		msg = msg + "_" + i[1][9:] + "_ -> _" + i[2][9:] + "_:\n"
+		msg = msg + "_" + i[1][9:] + "_ → _" + i[2][9:] + "_:\n"
 		msg = msg + i[3] + "\n"
 	return msg
 

@@ -27,13 +27,13 @@ class WitBot:
         if (len(resp['intents']) == 0):
             return (False, "Unable to understand message. Type $help for guidance.")
         else:
-            if (resp['intents'][0]['confidence'] > 0.5):
+            if (resp['intents'][0]['confidence'] > 0.8):
                 return (True, (resp['intents'][0]['name'], resp['intents'][0]['confidence']))
             else:
                 if (len(resp['intents']) > 1):
-                    return (False, "No recipient indicated. Do you mean to send to {} ({} sure) or {} ({} sure)?".format(resp['intents'][0]['name'], str(int(100.0*resp['intents'][0]['confidence'])) + "%", resp['intents'][1]['name'], str(int(100.0*resp['intents'][1]['confidence'])) + "%"))
+                    return (False, "No recipient indicated.\nDo you mean to send to *@{}* (_{} sure_) or {} ({} sure)?".format(resp['intents'][0]['name'], str(int(100.0*resp['intents'][0]['confidence'])) + "%", resp['intents'][1]['name'], str(int(100.0*resp['intents'][1]['confidence'])) + "%"))
                 else:
-                    return (False, "No recipient indicated. Do you mean to send to {} ({} sure)?".format(resp['intents'][0]['name'], str(int(100.0*resp['intents'][0]['confidence'])) + "%"))
+                    return (False, "No recipient indicated.\nDo you mean to send to *@{}* (_{} sure_)?".format(resp['intents'][0]['name'], str(int(100.0*resp['intents'][0]['confidence'])) + "%"))
 
     def _query(self, msg):
         resp = self.client.message(msg)
