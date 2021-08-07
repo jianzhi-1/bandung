@@ -111,6 +111,7 @@ def _retrieveLast(userFrom, userTo):
 	print(x, flush=True)
 	return x
 
+
 def cleanupContact(c):
 	x = c.split(":")
 	if (len(x) == 1): return x[0]
@@ -130,7 +131,6 @@ def index():
 
 		incoming_msg = request.values.get('Body', None)
 		sender = request.values.get('From', '')
-		recipient = request.values.get('To', '')
 		resp = MessagingResponse()
 
 		app.logger.info("index - incoming msg: {}".format(incoming_msg))
@@ -196,7 +196,7 @@ def index():
 				app.logger.info("index - final receiver = {}".format(str(receiver)))
 				_addContact(sender, receiver, msg[1])
 
-				### TODO create WITAI intent
+				### create WITAI intent
 				wb = WitBot()
 				wb.create_new_intent(msg[1])
 
@@ -243,12 +243,13 @@ def index():
 				return str(resp)
 
 			resp.message("Message sent!")
-			#resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], msglis))
-			
-			### add message to db_msg
+
+			### Add message to db_msg
+
 			_addMessage(sender, dirrecipient[0][0], msglis)
 
-			### send to the person
+			### Send message to person
+
 			if (firstWord[1:] in ["me", "dad", "annoyingboi", "pizza", "mum", "son", "boy", "bro", "brother"]):
 				account_sid = os.environ['TWILIO_ACCOUNT_SID']
 				auth_token = os.environ['TWILIO_AUTH_TOKEN']
@@ -267,22 +268,21 @@ def index():
 				app.logger.info("message sent - message.sid = {}".format(message.sid))
 			
 
-			### TODO Train WITAI utterance
+			### Train Wit.AI utterance
 			wb = WitBot()
 			wb.train_intent(firstWord[1:], msglis)
 
 			return str(resp)
 		else:
 			
-			incoming_msg
-
-			### TODO Get prediction from WitBot
+			### Get Wit.AI predictions
 			wb = WitBot()
 			(cann, txt) = wb.query(incoming_msg)
 
 			if (cann):
 				resp.message("No recipient indicated. Automatically sending message to *@{}* (_{} sure_).".format(txt[0], str(int(100.0*txt[1]))+"%"))
-				#automate the sending of message
+				
+				### Automate the sending of message
 				account_sid = os.environ['TWILIO_ACCOUNT_SID']
 				auth_token = os.environ['TWILIO_AUTH_TOKEN']
 				client = Client(account_sid, auth_token)
@@ -296,9 +296,7 @@ def index():
 					resp.message("No such recipient registered. Type $help for guidance.")
 					return str(resp)
 
-				#resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], incoming_msg))
-				
-				### add message to db_msg
+				### Add message to db_msg
 				_addMessage(sender, dirrecipient[0][0], incoming_msg)
 
 				app.logger.info("recipient is {}".format(dirrecipient[0][0]))
@@ -314,7 +312,7 @@ def index():
 
 				app.logger.info("message sent - message.sid = {}".format(message.sid))
 			
-				# do not train message over here, since it is unsupervised
+				### Message is not trained here, since it is unsupervised
 				return str(resp)
 			else:
 
@@ -327,10 +325,7 @@ def index():
 def addContact():
 	if (request.form.get("userFrom") is None or request.form.get("userTo") is None or request.form.get("codeName") is None):
 		return "Failed to add contact"
-	print("sql statement", flush=True)
-	print('INSERT INTO contact (userFrom, userTo, codeName) VALUES("{}", "{}", "{}")'.format(request.form.get("userFrom"), request.form.get("userTo"), request.form.get("codeName")), flush=True)
 	x = query_db('INSERT INTO contact (userFrom, userTo, codeName) VALUES("{}", "{}", "{}")'.format(request.form.get("userFrom"), request.form.get("userTo"), request.form.get("codeName")), cmt=True)
-	print(x, flush=True)
 	return "Successfully added contact"
 
 

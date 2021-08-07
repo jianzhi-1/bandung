@@ -19,9 +19,11 @@ You don't have to remember the people's numbers, or even need to save them to yo
 
 Example: ```@pizza can i have a large hawaiian pizza with 2 garlic bread?```
 
-3. Never lose your contacts
+3. Keep track of conversations via @last
+Retrieve last send messages 
 
-4. Retrieve last send messages 
+4. Combines with Wit.AI to automate your sending of messages!
+Each time you send a message with "@" in front, it will be used to train Bandung's Wit.AI app in the backend. This means that after sending a substantial amount of messages with Bandung, you no longer need the @person anymore! Simply just type your message and Bandung will automatically send it if the confidence level is more than 80%!
 
 ### Setting Up
 

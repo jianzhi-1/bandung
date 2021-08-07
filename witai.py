@@ -76,9 +76,3 @@ class WitBot:
         self.client.logger.info("WitBot - SUCCESS")
 
         return
-
-
-#wb = WitBot()
-#print(wb.query("Hi Boss"))
-#wb.create_new_intent("plumber")
-#wb.train_intent("plumber", "Water is overflowing everywhere, help!")
