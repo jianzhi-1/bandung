@@ -41,6 +41,17 @@ class WitBot:
         return resp['intents']
 
     def create_new_intent(self, intent_name):
+        headers = {
+            "Authorization": "Bearer {}".format(self.access_token),
+            "Content-Type": "application/json"
+        }
+        data = {
+            "name": intent_name
+        }
+        dt = datetime.datetime.now().strftime("%Y%m%d")
+        x = requests.post('https://api.wit.ai/intents?v={}'.format(dt), json=data, headers=headers)
+        print(x, flush=True)
+        return
 
         #Definition
         #POST https://api.wit.ai/intents
@@ -58,6 +69,21 @@ class WitBot:
     
     def train_intent(self, intent_name, text):
 
+        ### maybe do a check to see if intent name is within the list of intents?
+
+        headers = {
+            "Authorization": "Bearer {}".format(self.access_token),
+            "Content-Type": "application/json"
+        }
+        data = [{
+            "text": text,
+            "intent": intent_name,
+            "entities": [],
+            "traits": []
+        }]
+        dt = datetime.datetime.now().strftime("%Y%m%d")
+        x = requests.post('https://api.wit.ai/utterances?v={}'.format(dt), json=data, headers=headers)
+        print(x)
         #Definition
         #POST https://api.wit.ai/utterances
         #Example request
@@ -84,6 +110,11 @@ class WitBot:
 
 
         return
+
+wb = WitBot()
+#print(wb.query("Hi Boss"))
+#wb.create_new_intent("plumber")
+wb.train_intent("plumber", "Water is overflowing everywhere, help!")
 
 #client = Wit(access_token)
 #resp = client.message('Hi Boss')
