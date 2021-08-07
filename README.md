@@ -25,24 +25,25 @@ Example: ```@pizza can i have a large hawaiian pizza with 2 garlic bread?```
 
 ### Setting Up
 
-1. Setting up environmental variables and DB
+1. Installation and setting up environmental variables
 
 ```dosini
 export TWILIO_ACCOUNT_SID='<TWILIO_ACCOUNT_SID>'
 export TWILIO_AUTH_TOKEN='<TWILIO_AUTH_TOKEN>'
-export WIT_AI_ACCESS_TOKEN='<WIT_AI_ACCESS_TOKEN'
+export TWILIO_PHONE_NO='<TWILIO_PHONE_NO>'
+export WIT_AI_ACCESS_TOKEN='<WIT_AI_ACCESS_TOKEN>'
 ```
 
 ```shell
 $ sh setup.sh
 ```
 
-1. Running Flask app
+2. Running the app
+a) Running Bandung app
 ```shell
-$ python3 app.py
+$ sh run.sh
 ```
-
-2. Running ngrok (for mapping of ports)
+b) Running ngrok (for mapping of ports)
 ```shell
 $ cd /path/to/ngrok
 $ ./ngrok http 5000
