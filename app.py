@@ -111,6 +111,11 @@ def _retrieveLast(userFrom, userTo):
 	print(x, flush=True)
 	return x
 
+def cleanupContact(c):
+	x = c.split(":")
+	if (len(x) == 1): return x[0]
+	return x[1]
+
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -172,7 +177,7 @@ def index():
 					app.logger.warning("index - no contacts obtained")
 					resp.message("No such contact exist.")
 					return str(resp)
-				resp.message(respmsg[0][0])
+				resp.message(cleanupContact(respmsg[0][0]))
 				return str(resp)
 			elif (lmsg == "add"):
 				#add
@@ -237,7 +242,8 @@ def index():
 				resp.message("No such recipient registered. Type $help for guidance.")
 				return str(resp)
 
-			resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], msglis))
+			resp.message("Message sent!")
+			#resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], msglis))
 			
 			### add message to db_msg
 			_addMessage(sender, dirrecipient[0][0], msglis)
@@ -251,7 +257,7 @@ def index():
 				app.logger.info("recipient is {}".format(dirrecipient[0][0]))
 				app.logger.info("message is {}".format(msglis))
 
-				finmsg = "Message from {}\n\n".format(sender) + msglis
+				finmsg = "Message from {}\n\n".format(cleanupContact(sender)) + msglis
 
 				message = client.messages.create(
 					body=finmsg,
@@ -275,7 +281,7 @@ def index():
 			(cann, txt) = wb.query(incoming_msg)
 
 			if (cann):
-				resp.message("No recipient indicated. Automatically sending message to {} ({} sure).".format(txt[0], str(int(100.0*txt[1]))+"%"))
+				resp.message("No recipient indicated. Automatically sending message to *@{}* (_{} sure_).".format(txt[0], str(int(100.0*txt[1]))+"%"))
 				#automate the sending of message
 				account_sid = os.environ['TWILIO_ACCOUNT_SID']
 				auth_token = os.environ['TWILIO_AUTH_TOKEN']
@@ -290,7 +296,7 @@ def index():
 					resp.message("No such recipient registered. Type $help for guidance.")
 					return str(resp)
 
-				resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], incoming_msg))
+				#resp.message("You are sending to '{}' the following message: {}".format(dirrecipient[0][0], incoming_msg))
 				
 				### add message to db_msg
 				_addMessage(sender, dirrecipient[0][0], incoming_msg)
@@ -298,7 +304,7 @@ def index():
 				app.logger.info("recipient is {}".format(dirrecipient[0][0]))
 				app.logger.info("message is {}".format(incoming_msg))
 
-				finmsg = "Message from {}\n\n".format(sender) + incoming_msg
+				finmsg = "Message from {}\n\n".format(cleanupContact(sender)) + incoming_msg
 
 				message = client.messages.create(
 					body=finmsg,
@@ -360,7 +366,7 @@ def freeze(name):
 	for i in x:
 		if (msg != ""):
 			msg = msg + "\n"
-		msg = msg + i[1] + " -> " + i[2]
+		msg = msg  + "*@" + i[2] + "*" + ": " + cleanupContact(i[1])
 	return str(msg)
 
 
@@ -376,6 +382,3 @@ def getAllMessage():
 
 if __name__ == "__main__":
 	app.run(debug=True)
-
-#https://www.twilio.com/blog/build-a-sms-chatbot-with-python-flask-and-twilio
-#https://console.twilio.com/us1/develop/sms/try-it-out/send-an-sms?frameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1&currentFrameUrl=%2Fconsole%2Fsms%2Flogs%3F__override_layout__%3Dembed%26bifrost%3Dtrue%26x-target-region%3Dus1
