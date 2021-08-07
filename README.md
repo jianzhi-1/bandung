@@ -6,9 +6,9 @@ Too many contacts in your Whatsapp? Tired of seeing one-time contacts flooding y
 
 **Bandung** is submitted to RoboHacks 2021 (organised by MLH). This is the last hackathon for two of the team members before they start their university education, and hence the app is named Bandung (a famous drink in Singapore).
 
-[Bandung Devpost](https://devpost.com/software/bandung)
+🥤 [Bandung Devpost](https://devpost.com/software/bandung)
 
-[Bandung Video Demo](https://youtu.be/MAqnXtNtNt8)
+🥤 [Bandung Video Demo](https://youtu.be/MAqnXtNtNt8)
 
 ### Features
 
