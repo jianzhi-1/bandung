@@ -39,6 +39,7 @@ $ sh setup.sh
 ```
 
 2. Running the app
+
 a) Running Bandung app
 ```shell
 $ sh run.sh
