@@ -10,6 +10,8 @@ Too many contacts in your Whatsapp? Tired of seeing one-time contacts flooding y
 
 🥤 [Bandung Video Demo](https://youtu.be/MAqnXtNtNt8)
 
+![Bandung Architecture](./static/architecture.png)
+
 ### Features
 
 Bandung is powered by _Twilio API_ (for Whatsapp messaging) and _Wit.AI_ (for training intents).
